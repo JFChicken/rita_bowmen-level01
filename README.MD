@@ -13,3 +13,16 @@ We need to link this to one of my git users and then link the other to it so i c
 
  - List out commands
  - set up $> git pushu
+ - Add in Packages:
+   - Laravel Jetstream
+   - GraphQL Powered Api
+   - Build WireUI branch 
+
+
+# REFRANCES:
+
+
+ - Links to review
+   - (https://www.twilio.com/blog/build-graphql-powered-api-laravel-php)[link]
+
+
