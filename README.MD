@@ -18,6 +18,14 @@ We need to link this to one of my git users and then link the other to it so i c
    - GraphQL Powered Api
    - Build WireUI branch 
 
+## TODO[Frontend]:
+
+Build a table of commands
+
+| Command | Description |
+| --- | --- |
+| buildEnv:dev | Runds commands to help build dev deploy process |
+| buildEnv:generate | Set the application env settings |
 
 # REFRANCES:
 
