@@ -43,68 +43,62 @@ class BuildAChicken_Command extends Command
      */
     public function handle()
     {
+        $bundleDir = 'bundle01/';
         $this->output->title('Build A Chicken: Today!!');
 
-        $this->output->section('get colors for each layer');
-        $this->output->section('get each layer from bundle 01');
-
+        // Build from a bundle of images stores in given bundles
+        $this->output->section('files from bundle 01');
         $this->output->block(
-            Storage::allFiles('bundle01/'));
-
-
-        $imageBundle = Storage::allFiles('bundle01/');
-
-
-        foreach ($imageBundle as $layer) {
-            $msg = "Loading ... $layer";
-            $this->output->section($msg);
-            $filePath = Storage::path($layer);
-            $layers[] = imagecreatefrompng($filePath);
+            Storage::allFiles($bundleDir));
+        $imageBundle = Storage::allFiles($bundleDir);
+        if (empty($imageBundle)) {
+            $this->output->error('missing files for bundle');
+            return 1;
         }
 
-        // build the final image now
+        // take each layer image and load it
+        foreach ($imageBundle as $layer) {
+            $msg = "Loading ... $layer";
 
-        // TODO: make sure the images are build to the correct specs for each bundle build
+            // file validation
 
+            if (pathinfo($layer)['extension'] != 'DS_Store' && pathinfo($layer)['extension'] == 'png') {
+                $this->output->section($msg);
+                $filePath = Storage::path($layer);
+                $layers[] = imagecreatefrompng($filePath);
+            }
+        }
+
+        // build the blank canvs the same size as the image
         $imagex = imagesx($layers[0]);
         $imagey = imagesy($layers[0]);
-        $tc = imagecreatetruecolor($imagex, $imagey);
-        imagealphablending($tc, false);
-        imagefilledrectangle($tc, 0, 0, $imagex, $imagey, imagecolorallocatealpha($tc, 255, 255, 255, 127));
-        imagealphablending($tc, true);
-        $imagey = 0;
-        $imagex = 0;
+        $finalImage = imagecreatetruecolor($imagex, $imagey);
+        imagealphablending($finalImage, false);
+        imagefilledrectangle($finalImage, 0, 0, $imagex, $imagey, imagecolorallocatealpha($finalImage, 255, 255, 255, 127));
+        imagealphablending($finalImage, true);
         $msg = "Building X:$imagex x Y:$imagey";
         $this->output->section($msg);
 
+        // loop process for files
         $faker = Faker\Factory::create();
 
-        $bundle = collect([
-            [
-                $this->input->getOption('bodyColor'), // 'bundle01/af01-base.png'
-                $faker->hexColor(),// 'bundle01/af01-effect01.png',
-                $faker->hexColor(),//'bundle01/af01-effect02.png',
-                $faker->hexColor(),//'bundle01/af01-effect03.png',
-                $this->input->getOption('eyeColor'), //'bundle01/af01-eyecolor.png'
-                $faker->hexColor(),//'bundle01/af01-eyewhite.png',
-                $faker->hexColor(),//'bundle01/af01-lines.png',
-            ]
-        ]);
+        foreach ($layers as $key=>$gdObject){
+            // update the layer colors
+        $image = $this->alphacolorswap($gdObject, $faker->hexColor());
+        // merge the layer with the final image
+        $this->imagecopymerge_alpha($finalImage, $image, 0, 0, 0, 0, $imagex, $imagey, 100);// base color leave a full opacity
 
-        $bundle = $bundle->map(function ($item, $key) {
+        }
 
-            return [
-                'color'=>$item
-            ];
-    });
 
-        var_dump($bundle->all());
-//        $img = $this->compilepet('0ff00f' , 'a5a5a5');
-//
-//        imagesavealpha($img,true);
-//
-//        imagepng($img,'bundle01.png');
+        // final process and saving to storage
+        imagesavealpha($finalImage, true);
+        $info = Storage::path('output');
+        $filename = $faker->uuid();
+        $filePath = $info . '/' . $filename . '.png';
+        imagepng($finalImage, $filePath);
 
+        $this->output->success('Created:' . $filePath);
         return Command::SUCCESS;
     }
 
