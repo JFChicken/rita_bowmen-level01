@@ -14,5 +14,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('demo');
+
+
+    foreach (Storage::allFiles('public/') as $file){
+        $fileurl = explode('.',$file);
+
+        if(in_array('png',$fileurl)){
+            $finalList[] = $file;
+        }
+    }
+
+    return view('demo',['Imagelist'=>$finalList]);
 });

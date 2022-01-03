@@ -36,12 +36,13 @@
                     @endauth
                 </div>
             @endif
-
-            <h1>
-                Welcome Back Youtube!!!</h1>
-
-                <h3>Youtube Series: "how to develop on a windows after a really long time working on mac"</h3>
-                <span>Building: "color thingy with laravel"</span>
+            <ul>
+                @foreach($Imagelist as $imgurl)
+                    <li>
+                        <img src="{{Storage::url($imgurl)}}">
+                    </li>
+                @endforeach
+            </ul>
 
         </div>
     </body>
